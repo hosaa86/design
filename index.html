@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>STUDIO·AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#08080e;
+  --s1:#0f0f18;
+  --s2:#14141f;
+  --s3:#1a1a28;
+  --b1:#1c1c2e;
+  --b2:#282840;
+  --b3:#363655;
+  --accent:#7c6aff;
+  --hot:#ff4f82;
+  --gold:#f5c030;
+  --green:#1edd87;
+  --teal:#00ccaa;
+  --text:#eaeaf5;
+  --t2:#9090b8;
+  --t3:#505070;
+  --t4:#2a2a42;
+  --fd:'Bebas Neue',sans-serif;
+  --fb:'DM Sans',sans-serif;
+  --fm:'JetBrains Mono',monospace;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --tab-h: 64px;
+  --top-h: 52px;
+  --radius:14px;
+  --radius-sm:8px;
+}
+html,body{
+  height:100%;width:100%;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--fb);
+  -webkit-font-smoothing:antialiased;
+}
+button{cursor:pointer;border:none;background:none;color:inherit;font-family:inherit;-webkit-appearance:none}
+input,textarea{font-family:inherit;-webkit-appearance:none;appearance:none}
+input:focus,textarea:focus{outline:none}
+::-webkit-scrollbar{display:none}
+
+/* ═══════════════════════════════════════════════════
+APP SHELL
+═══════════════════════════════════════════════════ */
+#app{
+display:flex;flex-direction:column;
+height:100vh;height:100dvh;
+overflow:hidden;position:relative;
+}
+
+/* ═══════════════════════════════════════════════════
+TOP BAR
+═══════════════════════════════════════════════════ */
+#topbar{
+display:flex;align-items:center;
+padding:0 14px;
+padding-top:var(–safe-top);
+height:calc(var(–top-h) + var(–safe-top));
+background:var(–s1);
+border-bottom:1px solid var(–b1);
+flex-shrink:0;z-index:100;gap:10px;
+}
+.logo{
+font-family:var(–fd);font-size:19px;
+letter-spacing:3px;color:var(–accent);
+flex-shrink:0;
+}
+.top-spacer{flex:1}
+.top-brand-pill{
+display:none;align-items:center;gap:5px;
+padding:4px 10px;border-radius:20px;
+border:1px solid var(–b2);font-size:11px;color:var(–t2);
+}
+.top-brand-pill.visible{display:flex}
+.top-export-btn{
+display:flex;align-items:center;gap:5px;
+padding:7px 12px;border-radius:10px;
+background:var(–accent);color:#fff;
+font-size:12px;font-weight:600;
+flex-shrink:0;transition:opacity .2s;
+}
+.top-export-btn:active{opacity:.7}
+.top-menu-btn{
+width:38px;height:38px;border-radius:10px;
+background:var(–s2);border:1px solid var(–b1);
+display:flex;align-items:center;justify-content:center;
+font-size:17px;color:var(–t2);flex-shrink:0;
+transition:all .2s;
+}
+.top-menu-btn:active{background:var(–s3)}
+
+/* ═══════════════════════════════════════════════════
+MAIN AREA (canvas + panels stacked)
+═══════════════════════════════════════════════════ */
+#main{
+flex:1;overflow:hidden;position:relative;
+display:flex;flex-direction:column;
+}
+
+/* ═══════════════════════════════════════════════════
+CANVAS VIEW
+═══════════════════════════════════════════════════ */
+#canvas-view{
+flex:1;display:flex;flex-direction:column;
+overflow:hidden;
+transition:transform .3s ease;
+}
+.canvas-tools{
+display:flex;align-items:center;gap:6px;
+padding:7px 12px;
+background:var(–s1);border-bottom:1px solid var(–b1);
+overflow-x:auto;flex-shrink:0;
+}
+.tool-btn{
+padding:6px 11px;border-radius:8px;
+border:1px solid var(–b1);background:var(–s2);
+font-size:11.5px;color:var(–t3);white-space:nowrap;
+transition:all .2s;flex-shrink:0;
+}
+.tool-btn.active,
+.tool-btn:active{border-color:var(–accent);color:var(–accent);background:rgba(124,106,255,.1)}
+.ai-fab{
+margin-left:auto;flex-shrink:0;
+padding:6px 12px;border-radius:8px;
+background:rgba(124,106,255,.2);border:1px solid rgba(124,106,255,.4);
+color:var(–accent);font-size:12px;font-weight:600;
+white-space:nowrap;transition:all .2s;
+}
+.ai-fab:active{background:rgba(124,106,255,.35)}
+.canvas-viewport{
+flex:1;display:flex;align-items:center;justify-content:center;
+padding:16px;overflow:auto;
+background:#060610;
+background-image:radial-gradient(rgba(255,255,255,.025) 1px,transparent 1px);
+background-size:16px 16px;
+}
+.canvas-frame{
+background:var(–s1);
+border:1px solid var(–b2);
+border-radius:10px;
+box-shadow:0 0 50px rgba(124,106,255,.1),0 16px 40px rgba(0,0,0,.7);
+position:relative;overflow:hidden;
+transition:all .35s;
+max-width:100%;max-height:100%;
+}
+.canvas-ph{
+position:absolute;inset:0;
+display:flex;flex-direction:column;align-items:center;
+justify-content:center;gap:8px;padding:16px;
+}
+.canvas-ph-title{
+font-family:var(–fd);font-size:36px;
+letter-spacing:6px;color:var(–accent);
+text-align:center;line-height:1;
+}
+.canvas-ph-sub{font-size:11px;color:var(–t4);text-align:center;line-height:1.6;max-width:200px}
+.canvas-ph-btns{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:4px}
+.canvas-ph-btn{
+padding:5px 10px;border-radius:20px;font-size:10px;
+border:1px solid var(–b2);color:var(–t3);background:transparent;
+transition:all .2s;
+}
+.canvas-ph-btn:active{border-color:var(–accent);color:var(–accent)}
+.canvas-el{
+position:absolute;padding:5px 10px;border-radius:5px;
+font-size:10px;cursor:pointer;
+max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+transition:all .2s;outline:2px solid transparent;outline-offset:2px;
+}
+.canvas-el.active{outline-color:var(–accent)}
+.canvas-statusbar{
+padding:5px 12px;background:var(–s1);border-top:1px solid var(–b1);
+display:flex;align-items:center;gap:8px;
+font-size:9.5px;color:var(–t4);font-family:var(–fm);flex-shrink:0;
+}
+.canvas-statusbar-live{color:var(–green);margin-left:auto}
+
+/* ═══════════════════════════════════════════════════
+BOTTOM TAB BAR
+═══════════════════════════════════════════════════ */
+#tabbar{
+display:flex;align-items:center;
+background:var(–s1);
+border-top:1px solid var(–b1);
+padding-bottom:var(–safe-bottom);
+height:calc(var(–tab-h) + var(–safe-bottom));
+flex-shrink:0;z-index:100;
+}
+.tab-item{
+flex:1;display:flex;flex-direction:column;
+align-items:center;justify-content:center;
+gap:3px;padding:8px 4px;
+transition:all .2s;
+position:relative;
+}
+.tab-item:active .tab-icon{transform:scale(.88)}
+.tab-icon{
+font-size:20px;line-height:1;
+transition:transform .15s;
+}
+.tab-label{
+font-size:9px;font-weight:500;letter-spacing:.3px;
+color:var(–t3);transition:color .2s;
+font-family:var(–fm);text-transform:uppercase;
+}
+.tab-item.active .tab-label{color:var(–accent)}
+.tab-item.active .tab-icon{filter:drop-shadow(0 0 6px var(–accent))}
+.tab-dot{
+position:absolute;top:6px;right:calc(50% - 14px);
+width:6px;height:6px;border-radius:50%;
+background:var(–hot);display:none;
+}
+.tab-dot.visible{display:block}
+
+/* ═══════════════════════════════════════════════════
+SLIDE-UP PANEL SHEET
+═══════════════════════════════════════════════════ */
+.sheet-overlay{
+position:fixed;inset:0;
+background:rgba(0,0,0,.6);
+z-index:200;opacity:0;pointer-events:none;
+transition:opacity .3s;
+backdrop-filter:blur(4px);
+}
+.sheet-overlay.open{opacity:1;pointer-events:all}
+
+.sheet{
+position:fixed;left:0;right:0;bottom:0;
+background:var(–s1);
+border-radius:20px 20px 0 0;
+border-top:1px solid var(–b2);
+z-index:201;
+transform:translateY(100%);
+transition:transform .35s cubic-bezier(.32,.72,0,1);
+display:flex;flex-direction:column;
+max-height:88vh;max-height:88dvh;
+padding-bottom:var(–safe-bottom);
+}
+.sheet.open{transform:translateY(0)}
+
+.sheet-handle{
+width:36px;height:4px;border-radius:2px;
+background:var(–b3);margin:10px auto 0;flex-shrink:0;
+}
+.sheet-header{
+display:flex;align-items:center;justify-content:space-between;
+padding:12px 16px 10px;flex-shrink:0;
+border-bottom:1px solid var(–b1);
+}
+.sheet-title{font-family:var(–fm);font-size:11px;color:var(–t3);letter-spacing:1.5px;text-transform:uppercase}
+.sheet-close{
+width:28px;height:28px;border-radius:8px;
+background:var(–s2);color:var(–t2);
+display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.sheet-close:active{background:var(–s3)}
+.sheet-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ═══════════════════════════════════════════════════
+AI CHAT SHEET
+═══════════════════════════════════════════════════ */
+#sheet-ai{height:82vh;height:82dvh}
+.chat-status{
+padding:8px 14px;border-bottom:1px solid var(–b1);
+display:flex;align-items:center;gap:7px;flex-shrink:0;
+}
+.online-dot{
+width:7px;height:7px;border-radius:50%;
+background:var(–green);animation:pulse 2s ease infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.chat-msgs{
+flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+padding:12px;display:flex;flex-direction:column;gap:8px;
+}
+.msg{display:flex;flex-direction:column}
+.msg.user{align-items:flex-end}
+.msg.ai{align-items:flex-start;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bubble{
+max-width:88%;padding:9px 12px;
+font-size:13px;line-height:1.65;
+white-space:pre-wrap;word-break:break-word;
+}
+.msg.ai .bubble{
+border-radius:4px 14px 14px 14px;
+background:var(–s2);border:1px solid var(–b1);
+}
+.msg.user .bubble{
+border-radius:14px 14px 4px 14px;
+background:rgba(124,106,255,.2);
+border:1px solid rgba(124,106,255,.35);
+}
+.typing{
+display:flex;align-items:center;gap:7px;
+padding:9px 12px;border-radius:4px 14px 14px 14px;
+background:var(–s2);border:1px solid var(–b1);width:fit-content;
+}
+.spinner{
+width:12px;height:12px;
+border:2px solid rgba(124,106,255,.2);
+border-top-color:var(–accent);
+border-radius:50%;animation:spin 1s linear infinite;
+}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.quick-chips{
+padding:8px 10px;border-top:1px solid var(–b1);
+display:flex;gap:5px;overflow-x:auto;flex-shrink:0;
+}
+.quick-chips::-webkit-scrollbar{display:none}
+.chip{
+padding:5px 10px;border-radius:20px;font-size:11px;
+border:1px solid var(–b2);color:var(–t3);
+background:transparent;white-space:nowrap;flex-shrink:0;
+transition:all .15s;
+}
+.chip:active{border-color:var(–accent);color:var(–accent)}
+.chat-input-bar{
+padding:10px 12px;border-top:1px solid var(–b1);
+display:flex;gap:8px;align-items:flex-end;flex-shrink:0;
+}
+.chat-textarea{
+flex:1;background:var(–s2);
+border:1px solid var(–b2);border-radius:12px;
+padding:10px 12px;font-size:14px;color:var(–text);
+resize:none;line-height:1.45;max-height:100px;
+transition:border-color .2s;
+}
+.chat-textarea:focus{border-color:var(–accent)}
+.send-btn{
+width:40px;height:40px;border-radius:12px;
+background:var(–accent);color:#fff;font-size:18px;
+display:flex;align-items:center;justify-content:center;
+flex-shrink:0;transition:all .15s;
+}
+.send-btn:active{background:#6a58ee;transform:scale(.93)}
+.send-btn:disabled{opacity:.3;pointer-events:none}
+
+/* ═══════════════════════════════════════════════════
+TEMPLATES SHEET
+═══════════════════════════════════════════════════ */
+.tpl-grid{
+display:grid;grid-template-columns:1fr 1fr;
+gap:10px;padding:14px;
+}
+.tpl-card{
+padding:14px 12px;border-radius:12px;
+border:1px solid var(–b1);background:var(–s2);
+display:flex;flex-direction:column;align-items:center;
+gap:6px;text-align:center;transition:all .2s;
+}
+.tpl-card:active,.tpl-card.active{
+border-color:var(–accent);
+background:rgba(124,106,255,.1);
+}
+.tpl-icon{font-size:26px}
+.tpl-name{font-size:12px;font-weight:500;color:var(–text)}
+.tpl-size{font-size:10px;color:var(–t3);font-family:var(–fm)}
+
+/* ═══════════════════════════════════════════════════
+BRAND SHEET
+═══════════════════════════════════════════════════ */
+.brand-url-section{
+padding:12px 14px;border-bottom:1px solid var(–b1);
+}
+.brand-url-label{font-size:11px;color:var(–t3);margin-bottom:7px}
+.brand-url-row{display:flex;gap:8px}
+.brand-url-input{
+flex:1;background:var(–s2);
+border:1px solid var(–b2);border-radius:10px;
+padding:10px 12px;font-size:13px;color:var(–text);
+}
+.brand-url-input:focus{border-color:var(–accent)}
+.brand-url-go{
+padding:0 16px;border-radius:10px;
+background:var(–accent);color:#fff;
+font-size:14px;font-weight:600;
+transition:opacity .2s;
+}
+.brand-url-go:active{opacity:.7}
+.brand-result-card{
+margin:10px 14px;padding:12px;
+border-radius:12px;border:1px solid rgba(124,106,255,.3);
+background:rgba(124,106,255,.07);
+}
+.brand-result-name{font-size:14px;font-weight:600;margin-bottom:7px}
+.brand-result-swatches{display:flex;gap:5px;margin-bottom:7px}
+.brand-result-swatch{width:22px;height:22px;border-radius:5px;border:1px solid rgba(255,255,255,.1)}
+.brand-result-style{font-size:12px;color:var(–t2);margin-bottom:4px}
+.brand-result-notes{font-size:11px;color:var(–t3);line-height:1.5}
+.brand-save-btn{
+width:100%;margin-top:10px;padding:10px;
+border-radius:10px;background:var(–green);
+color:#0a1a10;font-size:13px;font-weight:700;
+transition:opacity .2s;
+}
+.brand-save-btn:active{opacity:.7}
+.brand-cards{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.brand-card{
+padding:12px;border-radius:12px;
+border:1px solid var(–b1);background:var(–s2);
+transition:all .2s;
+}
+.brand-card:active,.brand-card.active{
+border-color:var(–accent);background:rgba(124,106,255,.08);
+}
+.brand-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.brand-card-name{font-size:13px;font-weight:500}
+.brand-active-badge{font-size:9px;color:var(–accent);font-family:var(–fm);letter-spacing:.5px}
+.brand-card-dots{display:flex;gap:4px;margin-bottom:5px}
+.brand-card-dot{width:14px;height:14px;border-radius:3px}
+.brand-card-style{font-size:11px;color:var(–t3)}
+.brand-card-notes{font-size:10.5px;color:var(–t4);margin-top:3px;line-height:1.4}
+
+/* ═══════════════════════════════════════════════════
+LAYERS SHEET
+═══════════════════════════════════════════════════ */
+.layers-header{
+padding:10px 14px;border-bottom:1px solid var(–b1);
+display:flex;align-items:center;justify-content:space-between;
+flex-shrink:0;
+}
+.add-layer-btn{
+padding:6px 12px;border-radius:8px;
+border:1px solid rgba(124,106,255,.4);
+color:var(–accent);background:rgba(124,106,255,.1);
+font-size:12px;transition:all .2s;
+}
+.add-layer-btn:active{background:rgba(124,106,255,.2)}
+.layer-items{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.layer-item{
+display:flex;align-items:center;gap:10px;
+padding:10px 12px;border-radius:10px;
+border:1px solid var(–b1);background:var(–s2);
+transition:all .2s;
+}
+.layer-item.active{border-color:var(–accent);background:rgba(124,106,255,.08)}
+.layer-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.layer-name{flex:1;font-size:13px}
+.layer-type{font-size:9.5px;color:var(–t4);font-family:var(–fm)}
+.layer-del{
+width:28px;height:28px;border-radius:7px;
+display:flex;align-items:center;justify-content:center;
+font-size:13px;color:var(–t4);
+background:transparent;transition:all .2s;
+}
+.layer-del:active{color:var(–hot);background:rgba(255,79,130,.12)}
+
+/* ═══════════════════════════════════════════════════
+INSPIRE SHEET
+═══════════════════════════════════════════════════ */
+.inspire-search{
+padding:12px 14px;border-bottom:1px solid var(–b1);
+}
+.inspire-row{display:flex;gap:8px}
+.inspire-input{
+flex:1;background:var(–s2);
+border:1px solid var(–b2);border-radius:10px;
+padding:10px 12px;font-size:13px;color:var(–text);
+}
+.inspire-input:focus{border-color:var(–accent)}
+.inspire-go{
+padding:0 14px;border-radius:10px;
+background:var(–accent);color:#fff;font-size:15px;
+transition:opacity .2s;
+}
+.inspire-go:active{opacity:.7}
+.inspire-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.i-tag{
+padding:4px 9px;border-radius:20px;font-size:10px;
+border:1px solid var(–b2);color:var(–t3);background:transparent;
+transition:all .15s;
+}
+.i-tag:active{border-color:var(–accent);color:var(–accent)}
+.inspire-results{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.inspire-card{
+padding:12px;border-radius:12px;
+border:1px solid var(–b1);background:var(–s2);
+transition:all .2s;
+}
+.inspire-card:active{border-color:var(–accent)}
+.inspire-palette{display:flex;gap:4px;margin-bottom:8px}
+.inspire-swatch{flex:1;height:5px;border-radius:3px}
+.inspire-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.inspire-desc{font-size:11.5px;color:var(–t2);margin-bottom:4px;line-height:1.5}
+.inspire-tip{font-size:11px;color:var(–teal);font-style:italic}
+
+/* ═══════════════════════════════════════════════════
+FILES SHEET
+═══════════════════════════════════════════════════ */
+.files-drop{
+margin:12px 14px;
+border:1.5px dashed var(–b2);border-radius:12px;
+padding:22px;text-align:center;
+transition:all .2s;
+}
+.files-drop:active{border-color:var(–accent);background:rgba(124,106,255,.05)}
+.files-drop-icon{font-size:28px;margin-bottom:6px}
+.files-drop-label{font-size:13px;color:var(–t3);margin-bottom:3px}
+.files-drop-sub{font-size:11px;color:var(–t4)}
+.file-items{padding:0 14px 14px;display:flex;flex-direction:column;gap:6px}
+.file-item{
+display:flex;align-items:center;gap:10px;
+padding:10px 12px;border-radius:10px;
+border:1px solid var(–b1);background:var(–s2);
+}
+.file-icon{font-size:18px}
+.file-info{flex:1;overflow:hidden}
+.file-name{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:10px;color:var(–t4)}
+.use-btn{
+padding:6px 11px;border-radius:8px;font-size:11px;
+border:1px solid rgba(124,106,255,.3);
+color:var(–accent);background:rgba(124,106,255,.08);
+transition:all .15s;
+}
+.use-btn:active{background:rgba(124,106,255,.2)}
+
+/* ═══════════════════════════════════════════════════
+PROPERTIES SHEET
+═══════════════════════════════════════════════════ */
+.props-body{padding:14px;display:flex;flex-direction:column;gap:16px}
+.prop-section{}
+.prop-label{
+font-size:10px;color:var(–t4);
+text-transform:uppercase;letter-spacing:1px;
+font-family:var(–fm);margin-bottom:8px;
+}
+.color-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.color-dot{width:20px;height:20px;border-radius:5px;flex-shrink:0;border:1px solid var(–b2)}
+.color-hex{font-size:11px;font-family:var(–fm);color:var(–t2)}
+.qc-grid{display:flex;flex-wrap:wrap;gap:6px}
+.qc{
+width:28px;height:28px;border-radius:6px;
+border:1px solid var(–b2);transition:transform .15s;
+}
+.qc:active{transform:scale(1.25)}
+.font-pill{
+padding:8px 10px;border-radius:8px;margin-bottom:5px;
+border:1px solid var(–b1);background:var(–s2);
+font-size:12px;color:var(–t2);
+}
+.qa-btn{
+width:100%;text-align:left;padding:10px 12px;
+border-radius:10px;margin-bottom:5px;
+border:1px solid var(–b1);background:var(–s2);
+font-size:13px;color:var(–t3);transition:all .15s;
+}
+.qa-btn:active{border-color:var(–accent);color:var(–accent);background:rgba(124,106,255,.08)}
+
+/* ═══════════════════════════════════════════════════
+EXPORT SHEET
+═══════════════════════════════════════════════════ */
+.export-formats{
+display:grid;grid-template-columns:repeat(5,1fr);
+gap:8px;padding:14px;
+}
+.exp-card{
+padding:12px 6px;border-radius:10px;
+border:1px solid var(–b1);background:var(–s2);
+text-align:center;font-size:11px;font-weight:700;
+font-family:var(–fm);color:var(–t3);transition:all .2s;
+letter-spacing:.5px;
+}
+.exp-card.active{background:var(–hot);border-color:var(–hot);color:#fff}
+.exp-card:active{transform:scale(.94)}
+.export-cta{
+margin:0 14px 14px;padding:14px;
+border-radius:12px;background:var(–accent);
+color:#fff;text-align:center;
+font-size:14px;font-weight:600;
+transition:opacity .2s;
+}
+.export-cta:active{opacity:.8}
+.export-notes{
+padding:10px 14px 14px;font-size:12px;color:var(–t3);
+line-height:1.6;text-align:center;
+}
+
+/* ═══════════════════════════════════════════════════
+EMPTY STATE
+═══════════════════════════════════════════════════ */
+.empty{
+text-align:center;padding:32px 20px;
+font-size:12px;color:var(–t4);line-height:1.8;
+}
+
+/* ═══════════════════════════════════════════════════
+DESKTOP OVERRIDE (≥768px keeps desktop-ish layout)
+═══════════════════════════════════════════════════ */
+@media(min-width:768px){
+:root{–tab-h:60px}
+.tpl-grid{grid-template-columns:repeat(3,1fr)}
+.export-formats{grid-template-columns:repeat(5,1fr)}
+.sheet{max-width:520px;left:50%;right:auto;transform:translateX(-50%) translateY(100%)}
+.sheet.open{transform:translateX(-50%) translateY(0)}
+}
+
+/* ═══════════════════════════════════════════════════
+ANIMATIONS
+═══════════════════════════════════════════════════ */
+@keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.9}}
+.shimmer{animation:shimmer 1.2s ease infinite}
+</style>
+
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ TOP BAR ══ -->
+
+  <div id="topbar">
+    <div class="logo">STUDIO·AI</div>
+    <div class="top-spacer"></div>
+    <div class="top-brand-pill" id="top-brand-pill">
+      <div id="top-brand-dots" style="display:flex;gap:3px"></div>
+      <span id="top-brand-name"></span>
+    </div>
+    <button class="top-export-btn" onclick="openSheet('sheet-export')">↓ Export</button>
+    <button class="top-menu-btn" onclick="openSheet('sheet-props')">⊟</button>
+  </div>
+
+  <!-- ══ MAIN ══ -->
+
+  <div id="main">
+    <div id="canvas-view">
+
+```
+  <!-- Canvas toolbar -->
+  <div class="canvas-tools">
+    <button class="tool-btn active" onclick="setTool(this)">Select</button>
+    <button class="tool-btn" onclick="setTool(this)">Type</button>
+    <button class="tool-btn" onclick="setTool(this)">Shape</button>
+    <button class="tool-btn" onclick="setTool(this)">Image</button>
+    <button class="tool-btn" onclick="setTool(this)">Line</button>
+    <button class="ai-fab" onclick="aiGenerate()">✦ AI Generate</button>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-viewport">
+    <div class="canvas-frame" id="canvas-frame">
+      <div class="canvas-ph" id="canvas-ph">
+        <div class="canvas-ph-title" id="canvas-ph-title">STUDIO·AI</div>
+        <div style="width:40px;height:2px;background:var(--hot);margin:0 auto"></div>
+        <div class="canvas-ph-sub">Tap a template or ask the AI to generate a design</div>
+        <div class="canvas-ph-btns" id="canvas-ph-btns"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="canvas-statusbar">
+    <span>Layers: <span id="bar-layers">0</span></span>
+    <span>·</span>
+    <span>Brand: <span id="bar-brand">None</span></span>
+    <span>·</span>
+    <span>Export: <span id="bar-export">PNG</span></span>
+    <span class="canvas-statusbar-live">● LIVE</span>
+  </div>
+
+</div>
+```
+
+  </div>
+
+  <!-- ══ BOTTOM TAB BAR ══ -->
+
+  <div id="tabbar">
+    <button class="tab-item active" id="tab-ai" onclick="openSheet('sheet-ai')">
+      <div class="tab-dot visible" id="dot-ai"></div>
+      <div class="tab-icon">✦</div>
+      <div class="tab-label">AI</div>
+    </button>
+    <button class="tab-item" id="tab-tpl" onclick="openSheet('sheet-tpl')">
+      <div class="tab-icon">🎨</div>
+      <div class="tab-label">Templates</div>
+    </button>
+    <button class="tab-item" id="tab-brand" onclick="openSheet('sheet-brand')">
+      <div class="tab-icon">◈</div>
+      <div class="tab-label">Brand</div>
+    </button>
+    <button class="tab-item" id="tab-layers" onclick="openSheet('sheet-layers')">
+      <div class="tab-icon">⊞</div>
+      <div class="tab-label">Layers</div>
+    </button>
+    <button class="tab-item" id="tab-inspire" onclick="openSheet('sheet-inspire')">
+      <div class="tab-icon">⌖</div>
+      <div class="tab-label">Inspire</div>
+    </button>
+    <button class="tab-item" id="tab-files" onclick="openSheet('sheet-files')">
+      <div class="tab-icon">⊕</div>
+      <div class="tab-label">Files</div>
+    </button>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SHEETS (slide-up panels)
+══════════════════════════════════════════════════ -->
+
+<!-- Overlay -->
+
+<div class="sheet-overlay" id="overlay" onclick="closeSheet()"></div>
+
+<!-- ── AI CHAT ── -->
+
+<div class="sheet" id="sheet-ai" style="height:82vh;height:82dvh">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="online-dot"></div>
+      <span class="sheet-title">AI Designer</span>
+    </div>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"></div>
+  <div class="quick-chips" id="quick-chips"></div>
+  <div class="chat-input-bar">
+    <textarea class="chat-textarea" id="chat-input" rows="1"
+      placeholder="Describe a design, ask for ideas…"
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendToAI()}"></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendToAI()">↑</button>
+  </div>
+</div>
+
+<!-- ── TEMPLATES ── -->
+
+<div class="sheet" id="sheet-tpl">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Templates</span>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="tpl-grid" id="tpl-grid"></div>
+  </div>
+</div>
+
+<!-- ── BRAND ── -->
+
+<div class="sheet" id="sheet-brand" style="height:80vh;height:80dvh">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Brand Memory</span>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="brand-url-section">
+      <div class="brand-url-label">Analyse brand from URL</div>
+      <div class="brand-url-row">
+        <input class="brand-url-input" id="url-input" placeholder="https://brand.com" type="url"
+          onkeydown="if(event.key==='Enter')analyzeBrand()"/>
+        <button class="brand-url-go" id="url-go" onclick="analyzeBrand()">→</button>
+      </div>
+    </div>
+    <div id="brand-result-area"></div>
+    <div class="brand-cards" id="brand-cards"></div>
+  </div>
+</div>
+
+<!-- ── LAYERS ── -->
+
+<div class="sheet" id="sheet-layers" style="height:70vh;height:70dvh">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Layers</span>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div style="padding:10px 14px;border-bottom:1px solid var(--b1);flex-shrink:0">
+    <button class="add-layer-btn" onclick="addLayer()">+ Add Layer</button>
+  </div>
+  <div class="sheet-body">
+    <div class="layer-items" id="layer-items"></div>
+  </div>
+</div>
+
+<!-- ── INSPIRE ── -->
+
+<div class="sheet" id="sheet-inspire" style="height:82vh;height:82dvh">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Inspiration</span>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="inspire-search">
+    <div class="inspire-row">
+      <input class="inspire-input" id="inspire-input" placeholder="Search creative directions…"
+        onkeydown="if(event.key==='Enter')searchInspiration()"/>
+      <button class="inspire-go" onclick="searchInspiration()">⌖</button>
+    </div>
+    <div class="inspire-tags" id="inspire-tags"></div>
+  </div>
+  <div class="sheet-body">
+    <div class="inspire-results" id="inspire-results">
+      <div class="empty">Enter a topic to discover creative directions.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FILES ── -->
+
+<div class="sheet" id="sheet-files" style="height:72vh;height:72dvh">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Assets</span>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="files-drop" onclick="document.getElementById('file-input').click()">
+      <div class="files-drop-icon">⤒</div>
+      <div class="files-drop-label">Tap to upload files</div>
+      <div class="files-drop-sub">PNG · JPG · PDF · SVG · AI · PSD</div>
+    </div>
+    <input type="file" id="file-input" multiple accept=".png,.jpg,.jpeg,.pdf,.svg,.ai,.psd,.webp"
+      style="display:none" onchange="handleFiles(this.files)"/>
+    <div class="file-items" id="file-items">
+      <div class="empty">No files yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PROPERTIES ── -->
+
+<div class="sheet" id="sheet-props" style="height:75vh;height:75dvh">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Properties</span>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="props-body">
+      <div class="prop-section" id="brand-pal-section" style="display:none">
+        <div class="prop-label">Brand Palette</div>
+        <div id="brand-pal-colors"></div>
+      </div>
+      <div class="prop-section">
+        <div class="prop-label">Quick Colours</div>
+        <div class="qc-grid" id="qc-grid"></div>
+      </div>
+      <div class="prop-section">
+        <div class="prop-label">Typography</div>
+        <div class="font-pill" style="font-family:'Bebas Neue',sans-serif">Bebas Neue</div>
+        <div class="font-pill" style="font-family:'DM Sans',sans-serif">DM Sans</div>
+        <div class="font-pill" style="font-family:'JetBrains Mono',monospace">JetBrains Mono</div>
+      </div>
+      <div class="prop-section">
+        <div class="prop-label">Quick Actions</div>
+        <button class="qa-btn" onclick="qa('Suggest a colour palette with hex codes for this design.')">✦ Suggest palette</button>
+        <button class="qa-btn" onclick="qa('Recommend 3 font pairings that elevate this design.')">✦ Font pairings</button>
+        <button class="qa-btn" onclick="qa('Give me 3 layout variation ideas for this design.')">✦ Layout variations</button>
+        <button class="qa-btn" onclick="qa('Analyse my current design and suggest improvements.')">✦ Design critique</button>
+        <button class="qa-btn" onclick="qa('What mockup styles would showcase this design best?')">✦ Mockup ideas</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXPORT ── -->
+
+<div class="sheet" id="sheet-export">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title">Export</span>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="export-formats" id="export-formats"></div>
+    <button class="export-cta" onclick="handleExport()">↓ Generate Export Specs</button>
+    <div class="export-notes">AI will generate format-specific specs including dimensions, colour space, resolution and bleed settings.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════════════ -->
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const API_KEY = ""; // ← paste your Anthropic API key here
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const S = {
+  messages: [],
+  brands: [
+    { id:1, name:"Neon Brew Co.", colors:["#ff4f82","#7c6aff","#0a0a0f"], style:"dark, edgy, neon-punk", notes:"Youth-focused craft beer. Bold contrasts." },
+    { id:2, name:"Verdant Studio", colors:["#1edd87","#f5f5e8","#1a2a1a"], style:"organic, minimal, eco", notes:"Sustainable design agency. Clean lines." }
+  ],
+  brand: null,
+  layers: [],
+  activeLayer: null,
+  template: null,
+  exportFmt: "PNG",
+  files: [],
+  busy: false,
+  analysing: false,
+  searching: false,
+};
+
+const TEMPLATES = [
+  { id:"poster",  label:"Event Poster",   icon:"🎨", w:280, h:420 },
+  { id:"social",  label:"Social Square",  icon:"📱", w:320, h:320 },
+  { id:"banner",  label:"Web Banner",     icon:"🖥️", w:380, h:120 },
+  { id:"flyer",   label:"A4 Flyer",       icon:"📄", w:280, h:396 },
+  { id:"mockup",  label:"Product Mockup", icon:"📦", w:340, h:255 },
+  { id:"logo",    label:"Logo Sheet",     icon:"✦",  w:320, h:320 },
+];
+const EXPORTS = ["PNG","JPEG","PDF","PSD","AI"];
+const INSPO = [
+  "Retro-futuristic concert poster",
+  "Minimalist editorial fashion",
+  "Bold brutalist tech startup",
+  "Organic food brand packaging",
+  "Luxury watch advertisement",
+  "Psychedelic festival visual",
+];
+const QCOLORS = ["#7c6aff","#ff4f82","#f5c030","#1edd87","#00ccaa","#fff","#000","#ff3333","#33aaff","#ff8800"];
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  renderTplGrid();
+  renderExportFmts();
+  renderBrandCards();
+  renderQuickColors();
+  renderQuickChips();
+  renderInspireTags();
+  renderCanvasTplBtns();
+  addMsg("assistant", "Hey! I'm your AI design partner ✦\n\nDescribe what you'd like to create, paste a brand URL, or pick a template to start. I learn your brand styles over time.");
+});
+
+// ── SHEETS ────────────────────────────────────────────────────────────────────
+let activeSheet = null;
+function openSheet(id) {
+  if (activeSheet) document.getElementById(activeSheet).classList.remove("open");
+  activeSheet = id;
+  document.getElementById(id).classList.add("open");
+  document.getElementById("overlay").classList.add("open");
+  // tab highlight
+  const map = { "sheet-ai":"tab-ai","sheet-tpl":"tab-tpl","sheet-brand":"tab-brand","sheet-layers":"tab-layers","sheet-inspire":"tab-inspire","sheet-files":"tab-files" };
+  document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
+  if (map[id]) document.getElementById(map[id])?.classList.add("active");
+}
+function closeSheet() {
+  if (activeSheet) document.getElementById(activeSheet).classList.remove("open");
+  document.getElementById("overlay").classList.remove("open");
+  activeSheet = null;
+  document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
+}
+
+// ── TEMPLATES ─────────────────────────────────────────────────────────────────
+function renderTplGrid() {
+  document.getElementById("tpl-grid").innerHTML = TEMPLATES.map(t => `
+    <div class="tpl-card ${S.template?.id===t.id?'active':''}" onclick="selectTpl('${t.id}')">
+      <div class="tpl-icon">${t.icon}</div>
+      <div class="tpl-name">${t.label}</div>
+      <div class="tpl-size">${t.w}×${t.h}</div>
+    </div>
+  `).join("");
+}
+
+function renderCanvasTplBtns() {
+  document.getElementById("canvas-ph-btns").innerHTML = TEMPLATES.slice(0,4).map(t =>
+    `<button class="canvas-ph-btn" onclick="selectTpl('${t.id}')">${t.icon} ${t.label}</button>`
+  ).join("");
+}
+
+function selectTpl(id) {
+  S.template = TEMPLATES.find(t => t.id === id);
+  renderTplGrid();
+  updateCanvas();
+  closeSheet();
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function renderExportFmts() {
+  document.getElementById("export-formats").innerHTML = EXPORTS.map(f => `
+    <div class="exp-card ${S.exportFmt===f?'active':''}" onclick="setExportFmt('${f}')">${f}</div>
+  `).join("");
+}
+function setExportFmt(f) {
+  S.exportFmt = f;
+  renderExportFmts();
+  document.getElementById("bar-export").textContent = f;
+}
+function handleExport() {
+  closeSheet();
+  qa(`Generate export-ready specs for ${S.exportFmt}. Include: exact dimensions, colour space, resolution (300dpi print/72dpi web), bleed if applicable, format-specific notes for ${S.template?.label||"this design"}.`);
+}
+
+// ── CANVAS ────────────────────────────────────────────────────────────────────
+function updateCanvas() {
+  const frame = document.getElementById("canvas-frame");
+  const t = S.template;
+  const b = S.brand;
+
+  // Responsive sizing: scale down for viewport
+  const vp = frame.parentElement;
+  const maxW = vp.clientWidth - 32;
+  const maxH = vp.clientHeight - 32;
+  let w = t ? t.w : 280, h = t ? t.h : 420;
+  const scale = Math.min(1, maxW / w, maxH / h);
+  frame.style.width = Math.round(w * scale) + "px";
+  frame.style.height = Math.round(h * scale) + "px";
+
+  if (b) {
+    frame.style.background = `linear-gradient(135deg,${b.colors[0]}18,${b.colors[1]||"#14141f"}18),#0f0f18`;
+  } else {
+    frame.style.background = "var(--s1)";
+  }
+  if (t) {
+    const ph = document.getElementById("canvas-ph-title");
+    ph.textContent = t.label.toUpperCase();
+    ph.style.color = b?.colors[0] || "var(--accent)";
+    ph.style.fontSize = w * scale < 200 ? "22px" : "34px";
+  }
+  renderCanvasEls();
+  updateStatusBar();
+}
+
+function renderCanvasEls() {
+  document.querySelectorAll(".canvas-el").forEach(e => e.remove());
+  const frame = document.getElementById("canvas-frame");
+  S.layers.forEach((el, i) => {
+    const div = document.createElement("div");
+    div.className = `canvas-el${S.activeLayer===el.id?" active":""}`;
+    div.style.cssText = `top:${18+i*9}%;left:${6+(i%3)*4}%;background:${el.color}20;border:1px solid ${el.color}55;color:${el.color}`;
+    div.textContent = el.label;
+    div.onclick = () => { S.activeLayer = el.id; renderCanvasEls(); renderLayerItems(); };
+    frame.appendChild(div);
+  });
+}
+
+function updateStatusBar() {
+  document.getElementById("bar-layers").textContent = S.layers.length;
+  document.getElementById("bar-brand").textContent = S.brand?.name || "None";
+}
+
+window.addEventListener("resize", () => { if (S.template) updateCanvas(); });
+
+// ── LAYERS ────────────────────────────────────────────────────────────────────
+function addLayer() {
+  const cols = ["#7c6aff","#ff4f82","#f5c030","#1edd87","#00ccaa"];
+  const id = Date.now();
+  S.layers.push({ id, type:"layer", label:"New Layer", color:cols[S.layers.length%cols.length] });
+  S.activeLayer = id;
+  renderLayerItems();
+  renderCanvasEls();
+  updateStatusBar();
+}
+
+function removeLayer(id) {
+  S.layers = S.layers.filter(e => e.id !== id);
+  if (S.activeLayer === id) S.activeLayer = null;
+  renderLayerItems();
+  renderCanvasEls();
+  updateStatusBar();
+}
+
+function setActiveLayer(id) {
+  S.activeLayer = id;
+  renderLayerItems();
+  renderCanvasEls();
+}
+
+function renderLayerItems() {
+  const el = document.getElementById("layer-items");
+  if (!S.layers.length) { el.innerHTML = `<div class="empty">No layers yet.<br/>Add one or ask the AI.</div>`; return; }
+  el.innerHTML = S.layers.map(e => `
+    <div class="layer-item${S.activeLayer===e.id?" active":""}" onclick="setActiveLayer(${e.id})">
+      <div class="layer-dot" style="background:${e.color}"></div>
+      <span class="layer-name">${e.label}</span>
+      <span class="layer-type">${e.type}</span>
+      <button class="layer-del" onclick="event.stopPropagation();removeLayer(${e.id})">✕</button>
+    </div>
+  `).join("");
+}
+
+// ── BRANDS ────────────────────────────────────────────────────────────────────
+function renderBrandCards() {
+  document.getElementById("brand-cards").innerHTML = S.brands.map(b => `
+    <div class="brand-card${S.brand?.id===b.id?" active":""}" onclick="selectBrand(${b.id})">
+      <div class="brand-card-header">
+        <span class="brand-card-name">${b.name}</span>
+        ${S.brand?.id===b.id?'<span class="brand-active-badge">ACTIVE</span>':''}
+      </div>
+      <div class="brand-card-dots">${b.colors.map(c=>`<div class="brand-card-dot" style="background:${c}"></div>`).join("")}</div>
+      <div class="brand-card-style">${b.style}</div>
+      <div class="brand-card-notes">${b.notes}</div>
+    </div>
+  `).join("");
+}
+
+function selectBrand(id) {
+  S.brand = S.brand?.id === id ? null : S.brands.find(x => x.id === id);
+  renderBrandCards();
+  updateTopBrandPill();
+  updateBrandPalette();
+  updateCanvas();
+}
+
+function updateTopBrandPill() {
+  const b = S.brand;
+  const pill = document.getElementById("top-brand-pill");
+  if (!b) { pill.classList.remove("visible"); return; }
+  pill.classList.add("visible");
+  document.getElementById("top-brand-name").textContent = b.name;
+  document.getElementById("top-brand-dots").innerHTML = b.colors.slice(0,3).map(c =>
+    `<div style="width:8px;height:8px;border-radius:50%;background:${c}"></div>`).join("");
+}
+
+function updateBrandPalette() {
+  const b = S.brand;
+  const sec = document.getElementById("brand-pal-section");
+  if (!b) { sec.style.display = "none"; return; }
+  sec.style.display = "block";
+  document.getElementById("brand-pal-colors").innerHTML = b.colors.map(c => `
+    <div class="color-row">
+      <div class="color-dot" style="background:${c};box-shadow:0 0 5px ${c}66"></div>
+      <span class="color-hex">${c}</span>
+    </div>
+  `).join("");
+}
+
+// ── BRAND URL ANALYSIS ────────────────────────────────────────────────────────
+async function analyzeBrand() {
+  const url = document.getElementById("url-input").value.trim();
+  if (!url || S.analysing) return;
+  S.analysing = true;
+  document.getElementById("url-go").textContent = "…";
+  document.getElementById("brand-result-area").innerHTML = "";
+
+  try {
+    const txt = await callAI(
+      [{ role:"user", content:`Analyse the brand from: ${url}` }],
+      `You are a brand identity analyst. Return ONLY valid JSON (no markdown):
+{"name":"Brand Name","colors":["#hex1","#hex2","#hex3"],"style":"5-word style","fonts":["Font1"],"tone":"brand voice","notes":"2-sentence summary","designIdeas":["idea1","idea2"]}`
+    );
+    let b;
+    try { b = JSON.parse(txt.replace(/```json|```/g,"").trim()); }
+    catch { b = { name:url, colors:["#7c6aff","#ff4f82"], style:"modern digital", notes:"Brand from URL." }; }
+    showBrandResult(b);
+    addMsg("assistant", `✦ Brand extracted: ${b.name}\nStyle: ${b.style}\nColors: ${b.colors?.join(", ")}\n\nReady to use. Tap "Save to Library" then ask me to generate a design!`);
+    openSheet("sheet-ai");
+  } catch {
+    addMsg("assistant", "Couldn't analyse that URL. Try the brand name instead.");
+    openSheet("sheet-ai");
+  }
+  S.analysing = false;
+  document.getElementById("url-go").textContent = "→";
+  document.getElementById("url-input").value = "";
+}
+
+function showBrandResult(b) {
+  document.getElementById("brand-result-area").innerHTML = `
+    <div class="brand-result-card">
+      <div class="brand-result-name">${b.name}</div>
+      <div class="brand-result-swatches">${(b.colors||[]).map(c=>`<div class="brand-result-swatch" style="background:${c}"></div>`).join("")}</div>
+      <div class="brand-result-style">${b.style||""}</div>
+      <div class="brand-result-notes">${b.notes||""}</div>
+      <button class="brand-save-btn" onclick="saveBrand(${JSON.stringify(b).replace(/"/g,'&quot;')})">Save to Library ✓</button>
+    </div>`;
+}
+
+function saveBrand(b) {
+  const brand = { ...b, id:Date.now() };
+  S.brands.push(brand);
+  S.brand = brand;
+  document.getElementById("brand-result-area").innerHTML = "";
+  renderBrandCards();
+  updateTopBrandPill();
+  updateBrandPalette();
+  updateCanvas();
+}
+
+// ── INSPIRATION SEARCH ────────────────────────────────────────────────────────
+function renderInspireTags() {
+  document.getElementById("inspire-tags").innerHTML = INSPO.map(s =>
+    `<button class="i-tag" onclick="document.getElementById('inspire-input').value='${s}'">${s.slice(0,20)}…</button>`
+  ).join("");
+}
+
+async function searchInspiration() {
+  const q = document.getElementById("inspire-input").value.trim();
+  if (!q || S.searching) return;
+  S.searching = true;
+  document.getElementById("inspire-results").innerHTML = `<div class="empty shimmer">Finding inspiration…</div>`;
+
+  try {
+    const txt = await callAI(
+      [{ role:"user", content:`Design inspiration for: ${q}` }],
+      `You are a creative director. Return ONLY a JSON array (no markdown) of 4 objects:
+[{"title":"...","description":"...","palette":["#hex","#hex","#hex"],"mood":"...","suggestion":"..."}]`
+    );
+    let results;
+    try { results = JSON.parse(txt.replace(/```json|```/g,"").trim()); }
+    catch { results = [{ title:q, description:"Dynamic direction.", palette:["#7c6aff","#ff4f82","#f5c030"], mood:"Bold", suggestion:"Explore strong contrasts." }]; }
+
+    document.getElementById("inspire-results").innerHTML = results.map(r => `
+      <div class="inspire-card" onclick="useInspiration('${esc(r.title)}','${esc(r.suggestion)}')">
+        <div class="inspire-palette">${(r.palette||[]).map(c=>`<div class="inspire-swatch" style="background:${c}"></div>`).join("")}</div>
+        <div class="inspire-title">${r.title}</div>
+        <div class="inspire-desc">${r.description}</div>
+        <div class="inspire-tip">${r.suggestion}</div>
+      </div>
+    `).join("");
+  } catch {
+    document.getElementById("inspire-results").innerHTML = `<div class="empty">Search failed. Try again.</div>`;
+  }
+  S.searching = false;
+}
+
+function useInspiration(title, tip) {
+  closeSheet();
+  setTimeout(() => {
+    openSheet("sheet-ai");
+    sendToAI(`Create a design inspired by: ${title}. ${tip}`);
+  }, 200);
+}
+
+// ── FILES ─────────────────────────────────────────────────────────────────────
+function handleFiles(fl) {
+  const newFiles = Array.from(fl).map(f => ({ name:f.name, size:f.size, type:f.type, id:Date.now()+Math.random() }));
+  S.files.push(...newFiles);
+  renderFileItems();
+  updateStatusBar();
+  sendToAI(`I uploaded: ${newFiles.map(f=>f.name).join(", ")} — analyse these assets and suggest how to use them in a design.`);
+  closeSheet();
+  setTimeout(() => openSheet("sheet-ai"), 200);
+}
+
+function renderFileItems() {
+  const el = document.getElementById("file-items");
+  if (!S.files.length) { el.innerHTML = `<div class="empty">No files yet.</div>`; return; }
+  el.innerHTML = S.files.map(f => `
+    <div class="file-item">
+      <div class="file-icon">${f.type.includes("image")?"🖼️":f.type.includes("pdf")?"📄":"📁"}</div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-size">${(f.size/1024).toFixed(1)} KB</div>
+      </div>
+      <button class="use-btn" onclick="useFile('${esc(f.name)}')">Use</button>
+    </div>
+  `).join("");
+}
+
+function useFile(name) {
+  closeSheet();
+  setTimeout(() => { openSheet("sheet-ai"); sendToAI(`Use ${name} as a reference. How can I best incorporate it into my design?`); }, 200);
+}
+
+// ── QUICK COLOURS ─────────────────────────────────────────────────────────────
+function renderQuickColors() {
+  document.getElementById("qc-grid").innerHTML = QCOLORS.map(c =>
+    `<div class="qc" style="background:${c}" title="${c}" onclick="qa('Use ${c} as primary accent. How does it pair with my current design?')"></div>`
+  ).join("");
+}
+
+// ── CHIPS ─────────────────────────────────────────────────────────────────────
+function renderQuickChips() {
+  document.getElementById("quick-chips").innerHTML = INSPO.slice(0,4).map(s =>
+    `<button class="chip" onclick="sendToAI('${s}')">${s.slice(0,24)}…</button>`
+  ).join("");
+}
+
+// ── AI GENERATE ───────────────────────────────────────────────────────────────
+function aiGenerate() {
+  const msg = `Generate a complete detailed design concept for a ${S.template?.label||"poster"}${S.brand?` for ${S.brand.name}`:""}.  Include CONCEPT, COLOURS, TYPOGRAPHY, LAYOUT, and KEY ELEMENTS with specific values.`;
+  openSheet("sheet-ai");
+  sendToAI(msg);
+}
+
+function setTool(btn) {
+  document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+// ── AI CHAT ───────────────────────────────────────────────────────────────────
+function addMsg(role, text) {
+  S.messages.push({ role, text });
+  renderMessages();
+}
+
+function renderMessages() {
+  const el = document.getElementById("chat-msgs");
+  el.innerHTML = S.messages.map(m => `
+    <div class="msg ${m.role==="user"?"user":"ai"}">
+      <div class="bubble">${escHtml(m.text)}</div>
+    </div>
+  `).join("");
+  if (S.busy) {
+    el.innerHTML += `<div class="typing"><div class="spinner"></div><span style="font-size:12px;color:#505070">Designing…</span></div>`;
+  }
+  requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function esc(t) { return (t||"").replace(/'/g,"\\'"); }
+
+async function sendToAI(override) {
+  const input = document.getElementById("chat-input");
+  const msg = override || input.value.trim();
+  if (!msg || S.busy) return;
+  input.value = "";
+  input.style.height = "auto";
+  S.messages.push({ role:"user", text:msg });
+  S.busy = true;
+  document.getElementById("send-btn").disabled = true;
+  renderMessages();
+
+  const brandCtx = S.brand
+    ? `\nActive brand: ${S.brand.name}. Colors: ${S.brand.colors.join(", ")}. Style: ${S.brand.style}. Notes: ${S.brand.notes}`
+    : "";
+
+  const sys = `You are an expert AI graphic designer inside a mobile-first design studio. Help create posters, social graphics, mockups, brand identities, and print designs.
+When responding: be specific with hex colours and font names. Structure briefs with CONCEPT, COLOURS, TYPOGRAPHY, LAYOUT, ELEMENTS. Reference the active brand if set. Keep responses actionable and concise.${brandCtx}`;
+
+  try {
+    const apiMsgs = S.messages.filter(m=>m.role==="user"||m.role==="assistant").slice(-8).map(m=>({ role:m.role, content:m.text }));
+    const reply = await callAI(apiMsgs, sys);
+    S.messages.push({ role:"assistant", text:reply });
+
+    // auto-add layer for design requests
+    if (/poster|create|design|make|build|generate/i.test(msg)) {
+      const cols = ["#7c6aff","#ff4f82","#f5c030","#1edd87","#00ccaa"];
+      const id = Date.now();
+      S.layers.push({ id, type:"ai-concept", label:msg.slice(0,30)+"…", color:S.brand?.colors?.[0]||cols[S.layers.length%cols.length] });
+      S.activeLayer = id;
+      renderLayerItems();
+      renderCanvasEls();
+      updateStatusBar();
+    }
+  } catch {
+    S.messages.push({ role:"assistant", text:"Connection issue. Check your API key and try again." });
+  }
+
+  S.busy = false;
+  document.getElementById("send-btn").disabled = false;
+  renderMessages();
+}
+
+function qa(msg) {
+  closeSheet();
+  setTimeout(() => { openSheet("sheet-ai"); sendToAI(msg); }, 150);
+}
+
+// ── CORE API ──────────────────────────────────────────────────────────────────
+async function callAI(messages, system) {
+  const headers = {
+    "Content-Type":"application/json",
+    "anthropic-version":"2023-06-01",
+    "anthropic-dangerous-direct-browser-access":"true",
+  };
+  if (API_KEY) headers["x-api-key"] = API_KEY;
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST", headers,
+    body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, system, messages }),
+  });
+  const data = await res.json();
+  return data.content?.find(b=>b.type==="text")?.text || "";
+}
+</script>
+
+</body>
+</html>
