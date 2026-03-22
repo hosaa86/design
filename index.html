@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>STUDIO·AI — AI Graphic Design Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & BASE ───────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080e;
+  --surface:#0f0f18;
+  --surface2:#14141f;
+  --border:#1c1c2e;
+  --border2:#28283c;
+  --accent:#7c6aff;
+  --hot:#ff4f82;
+  --gold:#f5c030;
+  --green:#1edd87;
+  --teal:#00ccaa;
+  --text:#eaeaf5;
+  --muted:#6060808;
+  --faint:#2a2a40;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-body)}
+button{cursor:pointer;border:none;background:none;color:inherit;font-family:inherit}
+input,textarea{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── LAYOUT ─────────────────────────────────────────────────── */
+#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── TOP BAR ────────────────────────────────────────────────── */
+#topbar{
+  display:flex;align-items:center;gap:10px;
+  padding:0 14px;height:50px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+  position:relative;z-index:10;
+}
+.logo{font-family:var(--font-display);font-size:20px;letter-spacing:3px;color:var(--accent);white-space:nowrap}
+.divider{width:1px;height:22px;background:var(--border);flex-shrink:0}
+.templates-scroll{display:flex;gap:5px;overflow-x:auto;flex:1;padding:2px 0}
+.templates-scroll::-webkit-scrollbar{display:none}
+.tpl-btn{
+  display:flex;align-items:center;gap:4px;padding:4px 9px;
+  border-radius:6px;border:1px solid var(--border);
+  font-size:11px;white-space:nowrap;color:#6060a0;
+  background:transparent;transition:all .2s;flex-shrink:0;
+}
+.tpl-btn:hover,.tpl-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(124,106,255,.1)}
+.brand-pill{
+  display:flex;align-items:center;gap:5px;padding:3px 9px;
+  border-radius:20px;border:1px solid var(--border2);
+  font-size:11px;color:#6060a0;white-space:nowrap;
+}
+.export-tabs{display:flex;border-radius:7px;overflow:hidden;border:1px solid var(--border2)}
+.exp-btn{
+  padding:4px 8px;font-size:10px;font-weight:700;letter-spacing:.5px;
+  font-family:var(--font-mono);color:#6060a0;
+  background:transparent;transition:all .2s;
+}
+.exp-btn.active{background:var(--hot);color:#fff}
+.export-action{
+  padding:5px 13px;border-radius:7px;background:var(--accent);
+  color:#fff;font-size:12px;font-weight:600;white-space:nowrap;
+  transition:all .2s;
+}
+.export-action:hover{background:#6a58ee}
+
+/* ── MAIN BODY ──────────────────────────────────────────────── */
+#main{display:flex;flex:1;overflow:hidden}
+
+/* ── ICON RAIL ──────────────────────────────────────────────── */
+#rail{
+  width:46px;border-right:1px solid var(--border);
+  background:var(--surface);
+  display:flex;flex-direction:column;align-items:center;
+  padding:8px 0;gap:4px;flex-shrink:0;
+}
+.rail-btn{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;color:#505070;border:1px solid transparent;
+  transition:all .2s;background:transparent;
+}
+.rail-btn:hover,.rail-btn.active{
+  background:rgba(124,106,255,.15);
+  color:var(--accent);border-color:rgba(124,106,255,.4);
+}
+.rail-spacer{flex:1}
+
+/* ── LEFT PANEL ─────────────────────────────────────────────── */
+#lpanel{
+  width:290px;border-right:1px solid var(--border);
+  background:var(--surface);display:flex;flex-direction:column;
+  overflow:hidden;flex-shrink:0;
+}
+.panel-head{
+  padding:9px 13px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.panel-label{font-family:var(--font-mono);font-size:10px;color:#505070;letter-spacing:1.5px;text-transform:uppercase}
+.panel-action{
+  padding:3px 8px;border-radius:5px;font-size:10px;
+  border:1px solid rgba(124,106,255,.4);
+  color:var(--accent);background:rgba(124,106,255,.1);
+  transition:all .2s;
+}
+.panel-action:hover{background:rgba(124,106,255,.2)}
+
+/* Panel tabs */
+.tab-content{display:none;flex-direction:column;height:100%}
+.tab-content.active{display:flex}
+
+/* ── AI CHAT ────────────────────────────────────────────────── */
+.chat-header{
+  padding:8px 13px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:7px;flex-shrink:0;
+}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.chat-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:7px}
+.msg{display:flex;flex-direction:column}
+.msg.user{align-items:flex-end}
+.msg.ai{align-items:flex-start;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.bubble{
+  max-width:90%;padding:7px 10px;font-size:11.5px;line-height:1.65;
+  white-space:pre-wrap;word-break:break-word;
+}
+.msg.ai .bubble{
+  border-radius:2px 10px 10px 10px;
+  background:var(--surface2);border:1px solid var(--border);color:var(--text);
+}
+.msg.user .bubble{
+  border-radius:10px 10px 2px 10px;
+  background:rgba(124,106,255,.18);border:1px solid rgba(124,106,255,.35);
+  color:var(--text);
+}
+.typing-indicator{
+  display:flex;align-items:center;gap:6px;padding:7px 10px;
+  border-radius:2px 10px 10px 10px;
+  background:var(--surface2);border:1px solid var(--border);
+  width:fit-content;
+}
+.spinner{
+  width:11px;height:11px;
+  border:2px solid rgba(124,106,255,.2);
+  border-top-color:var(--accent);
+  border-radius:50%;animation:spin 1s linear infinite;
+}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.chips{
+  padding:5px 8px;border-top:1px solid var(--border);
+  display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0;
+}
+.chip{
+  padding:2px 7px;border-radius:20px;font-size:9.5px;
+  border:1px solid var(--border2);color:#505070;
+  background:transparent;transition:all .2s;
+}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chat-input-area{padding:9px 10px;border-top:1px solid var(--border);flex-shrink:0}
+.chat-row{display:flex;gap:6px;align-items:flex-end}
+.chat-textarea{
+  flex:1;background:var(--surface2);
+  border:1px solid var(--border2);border-radius:8px;
+  padding:7px 9px;font-size:11.5px;color:var(--text);
+  resize:none;line-height:1.5;transition:border-color .2s;
+}
+.chat-textarea:focus{border-color:var(--accent)}
+.send-btn{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--accent);color:#fff;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;
+}
+.send-btn:hover{background:#6a58ee}
+.send-btn:disabled{opacity:.35;pointer-events:none}
+
+/* ── LAYERS PANEL ───────────────────────────────────────────── */
+.layer-list{flex:1;overflow-y:auto;padding:7px}
+.layer-item{
+  display:flex;align-items:center;gap:7px;
+  padding:6px 9px;border-radius:7px;margin-bottom:3px;
+  border:1px solid var(--border);background:var(--surface2);
+  cursor:pointer;transition:all .2s;
+}
+.layer-item:hover,.layer-item.active{border-color:var(--accent);background:rgba(124,106,255,.07)}
+.layer-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.layer-name{flex:1;font-size:11px}
+.layer-type{font-size:9px;color:#404055;font-family:var(--font-mono)}
+.layer-del{font-size:11px;color:#303050;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:3px;transition:all .2s}
+.layer-del:hover{color:var(--hot);background:rgba(255,79,130,.1)}
+.empty-state{text-align:center;padding:30px 14px;color:#303050;font-size:11px;line-height:1.8}
+
+/* ── BRAND PANEL ────────────────────────────────────────────── */
+.url-bar{padding:9px 11px;border-bottom:1px solid var(--border);flex-shrink:0}
+.url-row{display:flex;gap:5px;margin-top:5px}
+.url-input{
+  flex:1;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text);
+}
+.url-input:focus{border-color:var(--accent)}
+.url-go{
+  padding:5px 9px;border-radius:6px;background:var(--accent);
+  color:#fff;font-size:11px;transition:all .2s;
+}
+.url-go:hover{background:#6a58ee}
+.brand-result{
+  margin:7px 9px;padding:9px;border-radius:8px;
+  border:1px solid rgba(124,106,255,.3);
+  background:rgba(124,106,255,.06);
+}
+.brand-result-name{font-size:12px;font-weight:600;margin-bottom:5px}
+.brand-swatches{display:flex;gap:3px;margin-bottom:5px}
+.swatch{width:16px;height:16px;border-radius:3px;border:1px solid var(--border2)}
+.brand-meta{font-size:10px;color:#606080;margin-bottom:3px}
+.save-brand-btn{
+  width:100%;padding:5px;border-radius:6px;
+  background:var(--green);color:#0a1a10;
+  font-size:11px;font-weight:700;margin-top:7px;transition:all .2s;
+}
+.save-brand-btn:hover{opacity:.85}
+.brand-list{flex:1;overflow-y:auto;padding:7px}
+.brand-card{
+  padding:9px;border-radius:8px;margin-bottom:5px;
+  border:1px solid var(--border);background:var(--surface2);
+  cursor:pointer;transition:all .2s;
+}
+.brand-card:hover,.brand-card.active{border-color:var(--accent);background:rgba(124,106,255,.07)}
+.brand-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.brand-card-name{font-size:12px;font-weight:500}
+.active-badge{font-size:9px;color:var(--accent);font-family:var(--font-mono);letter-spacing:.5px}
+.brand-card-style{font-size:10px;color:#505070;margin-top:2px}
+.brand-card-notes{font-size:10px;color:#383850;margin-top:2px}
+
+/* ── SEARCH/INSPIRE PANEL ───────────────────────────────────── */
+.search-bar{padding:9px 11px;border-bottom:1px solid var(--border);flex-shrink:0}
+.search-row{display:flex;gap:5px;margin-top:5px}
+.search-input{
+  flex:1;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text);
+}
+.search-input:focus{border-color:var(--accent)}
+.search-go{
+  padding:5px 9px;border-radius:6px;background:var(--accent);
+  color:#fff;font-size:12px;transition:all .2s;
+}
+.search-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.stag{
+  padding:2px 6px;border-radius:20px;font-size:9px;
+  border:1px solid var(--border2);color:#404055;
+  background:transparent;cursor:pointer;transition:all .2s;
+}
+.stag:hover{border-color:var(--accent);color:var(--accent)}
+.result-list{flex:1;overflow-y:auto;padding:7px}
+.result-card{
+  padding:9px;border-radius:8px;margin-bottom:5px;
+  border:1px solid var(--border);background:var(--surface2);
+  cursor:pointer;transition:all .2s;
+}
+.result-card:hover{border-color:var(--accent);transform:translateX(2px)}
+.result-palette{display:flex;gap:3px;margin-bottom:6px}
+.result-swatch{flex:1;height:5px;border-radius:3px}
+.result-title{font-size:12px;font-weight:500;margin-bottom:2px}
+.result-desc{font-size:10.5px;color:#606080;margin-bottom:3px;line-height:1.5}
+.result-tip{font-size:10px;color:var(--teal);font-style:italic}
+
+/* ── FILES PANEL ────────────────────────────────────────────── */
+.drop-zone{
+  margin:9px 11px;border:1.5px dashed var(--border2);
+  border-radius:8px;padding:18px;text-align:center;
+  cursor:pointer;transition:all .2s;
+}
+.drop-zone:hover{border-color:var(--accent);background:rgba(124,106,255,.05)}
+.drop-icon{font-size:22px;margin-bottom:5px}
+.drop-label{font-size:11px;color:#505070}
+.drop-sub{font-size:9.5px;color:#303050;margin-top:2px}
+.file-list{flex:1;overflow-y:auto;padding:7px}
+.file-item{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 9px;border-radius:7px;margin-bottom:3px;
+  border:1px solid var(--border);background:var(--surface2);
+}
+.file-icon{font-size:15px}
+.file-info{flex:1;overflow:hidden}
+.file-name{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:9.5px;color:#404055}
+.use-btn{
+  padding:3px 7px;border-radius:5px;font-size:10px;
+  border:1px solid rgba(124,106,255,.3);
+  color:var(--accent);background:rgba(124,106,255,.08);
+  transition:all .2s;
+}
+.use-btn:hover{background:rgba(124,106,255,.18)}
+
+/* ── CANVAS AREA ────────────────────────────────────────────── */
+#canvas-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.canvas-toolbar{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 13px;border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;
+}
+.tool-btn{
+  padding:4px 9px;border-radius:5px;font-size:11px;
+  border:1px solid var(--border);background:var(--surface2);
+  color:#505070;transition:all .2s;
+}
+.tool-btn:hover,.tool-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(124,106,255,.1)}
+.canvas-info{font-size:9.5px;color:#303050;font-family:var(--font-mono);margin-left:auto}
+.ai-gen-btn{
+  padding:4px 11px;border-radius:6px;
+  background:rgba(124,106,255,.15);border:1px solid rgba(124,106,255,.3);
+  color:var(--accent);font-size:11px;font-weight:600;transition:all .2s;
+}
+.ai-gen-btn:hover{background:rgba(124,106,255,.25)}
+.canvas-viewport{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:20px;overflow:auto;
+  background:#060610;
+  background-image:radial-gradient(rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size:18px 18px;
+}
+.canvas-frame{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:7px;
+  box-shadow:0 0 60px rgba(124,106,255,.08),0 20px 50px rgba(0,0,0,.6);
+  position:relative;overflow:hidden;
+  transition:all .4s;
+}
+.canvas-placeholder{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  padding:20px;
+}
+.canvas-title{
+  font-family:var(--font-display);font-size:44px;
+  letter-spacing:7px;text-align:center;line-height:1;
+  color:var(--accent);
+}
+.canvas-sub{font-size:11px;color:#303050;text-align:center;max-width:220px;line-height:1.6}
+.canvas-tpl-btns{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;max-width:260px;margin-top:5px}
+.canvas-tpl-btn{
+  padding:4px 9px;border-radius:20px;font-size:10px;
+  border:1px solid var(--border2);color:#505070;
+  background:transparent;transition:all .2s;
+}
+.canvas-tpl-btn:hover{border-color:var(--accent);color:var(--accent)}
+.canvas-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:3px 13px;border-top:1px solid var(--border);
+  background:var(--surface);
+  font-size:9.5px;color:#303050;font-family:var(--font-mono);
+  flex-shrink:0;
+}
+.canvas-bar-live{color:var(--green);margin-left:auto}
+
+/* ── CANVAS ELEMENT TAGS ────────────────────────────────────── */
+.canvas-el{
+  position:absolute;padding:5px 10px;border-radius:5px;
+  font-size:10.5px;cursor:pointer;
+  max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  transition:all .2s;outline:2px solid transparent;outline-offset:2px;
+}
+.canvas-el:hover,.canvas-el.active{outline-color:var(--accent)}
+
+/* ── RIGHT PANEL ────────────────────────────────────────────── */
+#rpanel{
+  width:210px;border-left:1px solid var(--border);
+  background:var(--surface);display:flex;flex-direction:column;
+  overflow:hidden;flex-shrink:0;
+}
+.rpanel-scroll{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:12px}
+.prop-section{}
+.prop-label{font-size:9.5px;color:#404055;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-family:var(--font-mono)}
+.color-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.color-dot{width:18px;height:18px;border-radius:4px;flex-shrink:0;border:1px solid var(--border2)}
+.color-hex{font-size:10px;font-family:var(--font-mono);color:#505070}
+.quick-colors{display:flex;flex-wrap:wrap;gap:4px}
+.qc{width:20px;height:20px;border-radius:4px;border:1px solid var(--border2);cursor:pointer;transition:transform .15s}
+.qc:hover{transform:scale(1.2)}
+.font-pill{
+  padding:5px 8px;border-radius:5px;margin-bottom:3px;
+  border:1px solid var(--border);background:var(--surface2);
+  font-size:11px;color:#505070;
+}
+.quick-action-btn{
+  width:100%;text-align:left;padding:6px 8px;border-radius:6px;margin-bottom:3px;
+  border:1px solid var(--border);background:var(--surface2);
+  font-size:10.5px;color:#505070;transition:all .2s;
+}
+.quick-action-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,106,255,.07)}
+
+/* ── MOBILE RESPONSIVE ──────────────────────────────────────── */
+@media(max-width:900px){
+  #rpanel{display:none}
+  #lpanel{width:260px}
+}
+@media(max-width:600px){
+  #lpanel{display:none}
+  #rail{display:none}
+  .canvas-toolbar{overflow-x:auto}
+}
+
+/* ── ANIMATIONS ─────────────────────────────────────────────── */
+@keyframes shimmer{0%{opacity:.5}50%{opacity:1}100%{opacity:.5}}
+.shimmer{animation:shimmer 1.5s ease infinite}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── TOP BAR ── -->
+  <div id="topbar">
+    <div class="logo">STUDIO·AI</div>
+    <div class="divider"></div>
+    <div class="templates-scroll" id="tpl-scroll">
+      <!-- injected by JS -->
+    </div>
+    <div class="brand-pill" id="brand-pill" style="display:none">
+      <div id="brand-pill-dots" style="display:flex;gap:3px"></div>
+      <span id="brand-pill-name"></span>
+    </div>
+    <div class="export-tabs" id="exp-tabs"></div>
+    <button class="export-action" onclick="handleExport()">↓ Export</button>
+  </div>
+
+  <!-- ── MAIN ── -->
+  <div id="main">
+
+    <!-- ── ICON RAIL ── -->
+    <div id="rail">
+      <button class="rail-btn active" id="rail-ai" onclick="switchPanel('ai')" title="AI Chat">✦</button>
+      <button class="rail-btn" id="rail-layers" onclick="switchPanel('layers')" title="Layers">⊞</button>
+      <button class="rail-btn" id="rail-brand" onclick="switchPanel('brand')" title="Brands">◈</button>
+      <button class="rail-btn" id="rail-search" onclick="switchPanel('search')" title="Inspiration">⌖</button>
+      <button class="rail-btn" id="rail-files" onclick="switchPanel('files')" title="Assets">⊕</button>
+      <div class="rail-spacer"></div>
+      <button class="rail-btn" onclick="document.getElementById('file-input').click()" title="Upload">⤒</button>
+    </div>
+
+    <!-- ── LEFT PANEL ── -->
+    <div id="lpanel">
+
+      <!-- AI TAB -->
+      <div class="tab-content active" id="tab-ai">
+        <div class="chat-header">
+          <div class="online-dot"></div>
+          <span style="font-family:var(--font-mono);font-size:10px;color:#505070;letter-spacing:1.5px">AI DESIGNER</span>
+        </div>
+        <div class="chat-msgs" id="chat-msgs"></div>
+        <div class="chips" id="chips"></div>
+        <div class="chat-input-area">
+          <div class="chat-row">
+            <textarea class="chat-textarea" id="chat-input" rows="2"
+              placeholder="Describe a design, ask for ideas…"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendToAI()}"></textarea>
+            <button class="send-btn" id="send-btn" onclick="sendToAI()">↑</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAYERS TAB -->
+      <div class="tab-content" id="tab-layers">
+        <div class="panel-head">
+          <span class="panel-label">Layers</span>
+          <button class="panel-action" onclick="addLayer()">+ Add</button>
+        </div>
+        <div class="layer-list" id="layer-list">
+          <div class="empty-state">No layers yet.<br/>Start a design or ask the AI.</div>
+        </div>
+      </div>
+
+      <!-- BRAND TAB -->
+      <div class="tab-content" id="tab-brand">
+        <div class="panel-head"><span class="panel-label">Brand Memory</span></div>
+        <div class="url-bar">
+          <div style="font-size:10px;color:#505070">Analyse brand from URL</div>
+          <div class="url-row">
+            <input class="url-input" id="url-input" placeholder="https://brand.com"
+              onkeydown="if(event.key==='Enter')analyzeBrand()"/>
+            <button class="url-go" id="url-go-btn" onclick="analyzeBrand()">→</button>
+          </div>
+        </div>
+        <div id="brand-result-area"></div>
+        <div class="brand-list" id="brand-list"></div>
+      </div>
+
+      <!-- SEARCH TAB -->
+      <div class="tab-content" id="tab-search">
+        <div class="panel-head"><span class="panel-label">Inspiration</span></div>
+        <div class="search-bar">
+          <div class="search-row">
+            <input class="search-input" id="search-input" placeholder="Search creative directions…"
+              onkeydown="if(event.key==='Enter')searchInspiration()"/>
+            <button class="search-go" onclick="searchInspiration()">⌖</button>
+          </div>
+          <div class="search-tags" id="search-tags"></div>
+        </div>
+        <div class="result-list" id="result-list">
+          <div class="empty-state">Enter a topic to discover<br/>creative directions.</div>
+        </div>
+      </div>
+
+      <!-- FILES TAB -->
+      <div class="tab-content" id="tab-files">
+        <div class="panel-head"><span class="panel-label">Assets</span></div>
+        <div class="drop-zone" onclick="document.getElementById('file-input').click()">
+          <div class="drop-icon">⤒</div>
+          <div class="drop-label">Drop files or click to upload</div>
+          <div class="drop-sub">PNG · JPG · PDF · SVG · AI · PSD</div>
+        </div>
+        <input type="file" id="file-input" multiple accept=".png,.jpg,.jpeg,.pdf,.svg,.ai,.psd,.webp" style="display:none" onchange="handleFiles(this.files)"/>
+        <div class="file-list" id="file-list">
+          <div class="empty-state">No files yet.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── CANVAS ── -->
+    <div id="canvas-area">
+      <div class="canvas-toolbar">
+        <button class="tool-btn active" onclick="setTool(this)">Select</button>
+        <button class="tool-btn" onclick="setTool(this)">Type</button>
+        <button class="tool-btn" onclick="setTool(this)">Shape</button>
+        <button class="tool-btn" onclick="setTool(this)">Image</button>
+        <button class="tool-btn" onclick="setTool(this)">Line</button>
+        <button class="tool-btn" onclick="setTool(this)">Frame</button>
+        <span class="canvas-info" id="canvas-info">No template selected</span>
+        <button class="ai-gen-btn" onclick="aiGenerate()">✦ AI Generate</button>
+      </div>
+      <div class="canvas-viewport">
+        <div class="canvas-frame" id="canvas-frame">
+          <div class="canvas-placeholder" id="canvas-ph">
+            <div class="canvas-title" id="canvas-ph-title">STUDIO·AI</div>
+            <div style="width:50px;height:2px;background:var(--hot);margin:0 auto"></div>
+            <div class="canvas-sub">Pick a template above or ask the AI to generate a design</div>
+            <div class="canvas-tpl-btns" id="canvas-tpl-btns"></div>
+          </div>
+        </div>
+      </div>
+      <div class="canvas-bar">
+        <span>Layers: <span id="bar-layers">0</span></span>
+        <span>·</span>
+        <span>Brand: <span id="bar-brand">None</span></span>
+        <span>·</span>
+        <span>Export: <span id="bar-export">PNG</span></span>
+        <span>·</span>
+        <span>Files: <span id="bar-files">0</span></span>
+        <span class="canvas-bar-live">● STUDIO·AI v1</span>
+      </div>
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div id="rpanel">
+      <div class="panel-head"><span class="panel-label">Properties</span></div>
+      <div class="rpanel-scroll">
+        <div class="prop-section" id="brand-palette-section" style="display:none">
+          <div class="prop-label">Brand Palette</div>
+          <div id="brand-palette-colors"></div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">Quick Colours</div>
+          <div class="quick-colors" id="quick-colors"></div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">Typography</div>
+          <div class="font-pill" style="font-family:'Bebas Neue',sans-serif">Bebas Neue</div>
+          <div class="font-pill" style="font-family:'DM Sans',sans-serif">DM Sans</div>
+          <div class="font-pill" style="font-family:'JetBrains Mono',monospace">JetBrains Mono</div>
+        </div>
+        <div class="prop-section">
+          <div class="prop-label">Quick Actions</div>
+          <button class="quick-action-btn" onclick="quickAction('Suggest a vibrant colour palette for this design with hex codes.')">✦ Suggest palette</button>
+          <button class="quick-action-btn" onclick="quickAction('Recommend 3 font pairings that would elevate this design.')">✦ Font pairings</button>
+          <button class="quick-action-btn" onclick="quickAction('Give me 3 layout variation ideas for this design with descriptions.')">✦ Layout variations</button>
+          <button class="quick-action-btn" onclick="quickAction('Generate a complete pre-export checklist for the selected format.')">✦ Export checklist</button>
+          <button class="quick-action-btn" onclick="quickAction('Analyse my current design and suggest improvements.')">✦ Design critique</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── CONFIG — paste your API key here ──────────────────────────────────────────
+const API_KEY = ""; // ← your Anthropic key, or set via env / backend
+
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = {
+  messages: [],
+  brands: [
+    { id:1, name:"Neon Brew Co.", colors:["#ff4f82","#7c6aff","#0a0a0f"], style:"dark, edgy, neon-punk", fonts:["Bebas Neue","DM Sans"], notes:"Youth-focused craft beer. Bold contrasts, glow effects." },
+    { id:2, name:"Verdant Studio", colors:["#1edd87","#f5f5e8","#1a2a1a"], style:"organic, minimal, eco", fonts:["DM Sans","Georgia"], notes:"Sustainable design agency. Clean lines, natural palette." }
+  ],
+  selectedBrand: null,
+  canvasElements: [],
+  activeLayer: null,
+  selectedTemplate: null,
+  exportFormat: "PNG",
+  files: [],
+  generating: false,
+  analysing: false,
+  searching: false,
+  activePanel: "ai",
+};
+
+const TEMPLATES = [
+  { id:"poster",  label:"Event Poster",    icon:"🎨", w:360, h:540  },
+  { id:"social",  label:"Social Square",   icon:"📱", w:480, h:480  },
+  { id:"banner",  label:"Web Banner",      icon:"🖥️", w:640, h:200  },
+  { id:"flyer",   label:"A4 Flyer",        icon:"📄", w:400, h:566  },
+  { id:"mockup",  label:"Product Mockup",  icon:"📦", w:520, h:390  },
+  { id:"logo",    label:"Logo Sheet",      icon:"✦",  w:480, h:480  },
+];
+
+const EXPORTS = ["PNG","JPEG","PDF","PSD","AI"];
+const INSPO = [
+  "Retro-futuristic concert poster",
+  "Minimalist editorial fashion",
+  "Bold brutalist tech startup",
+  "Organic food brand packaging",
+  "Luxury watch advertisement",
+  "Psychedelic festival visual",
+];
+const QCOLORS = ["#7c6aff","#ff4f82","#f5c030","#1edd87","#00ccaa","#ffffff","#000000","#ff3333","#33aaff","#ff8800"];
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  renderTemplates();
+  renderExportTabs();
+  renderBrands();
+  renderQuickColors();
+  renderChips();
+  renderSearchTags();
+  renderCanvasTplBtns();
+  addAIMessage("Hey! I'm your AI design partner. Describe what you'd like to create, paste a brand URL to extract their identity, or pick a template to start. I learn your brand styles over time. ✦");
+});
+
+// ── TEMPLATES ─────────────────────────────────────────────────────────────────
+function renderTemplates() {
+  const el = document.getElementById("tpl-scroll");
+  el.innerHTML = TEMPLATES.map(t =>
+    `<button class="tpl-btn ${state.selectedTemplate?.id===t.id?'active':''}" onclick="selectTemplate('${t.id}')">${t.icon} ${t.label}</button>`
+  ).join("");
+}
+
+function renderCanvasTplBtns() {
+  document.getElementById("canvas-tpl-btns").innerHTML = TEMPLATES.slice(0,4).map(t =>
+    `<button class="canvas-tpl-btn" onclick="selectTemplate('${t.id}')">${t.icon} ${t.label}</button>`
+  ).join("");
+}
+
+function selectTemplate(id) {
+  state.selectedTemplate = TEMPLATES.find(t => t.id === id);
+  updateCanvas();
+  renderTemplates();
+  document.getElementById("canvas-info").textContent = `${state.selectedTemplate.label} · ${state.selectedTemplate.w}×${state.selectedTemplate.h}`;
+}
+
+// ── EXPORT TABS ───────────────────────────────────────────────────────────────
+function renderExportTabs() {
+  document.getElementById("exp-tabs").innerHTML = EXPORTS.map(f =>
+    `<button class="exp-btn ${state.exportFormat===f?'active':''}" onclick="setExport('${f}')">${f}</button>`
+  ).join("");
+}
+function setExport(f) {
+  state.exportFormat = f;
+  renderExportTabs();
+  document.getElementById("bar-export").textContent = f;
+}
+function handleExport() {
+  quickAction(`Generate export-ready specs for ${state.exportFormat}. Include: dimensions, colour space, resolution (300dpi print/72dpi web), bleed if needed, and format-specific notes for ${state.selectedTemplate?.label||"this design"}.`);
+}
+
+// ── PANEL SWITCH ──────────────────────────────────────────────────────────────
+function switchPanel(p) {
+  ["ai","layers","brand","search","files"].forEach(x => {
+    document.getElementById(`tab-${x}`).classList.toggle("active", x===p);
+    const rb = document.getElementById(`rail-${x}`);
+    if(rb) rb.classList.toggle("active", x===p);
+  });
+  state.activePanel = p;
+}
+
+// ── TOOL SELECT ───────────────────────────────────────────────────────────────
+function setTool(btn) {
+  document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+// ── CANVAS ────────────────────────────────────────────────────────────────────
+function updateCanvas() {
+  const frame = document.getElementById("canvas-frame");
+  const ph = document.getElementById("canvas-ph");
+  const t = state.selectedTemplate;
+  const b = state.selectedBrand;
+
+  if (t) {
+    frame.style.width = t.w + "px";
+    frame.style.height = t.h + "px";
+  } else {
+    frame.style.width = "360px";
+    frame.style.height = "540px";
+  }
+
+  if (b) {
+    frame.style.background = `linear-gradient(135deg, ${b.colors[0]}18, ${b.colors[1]||'#14141f'}18), #0f0f18`;
+  } else {
+    frame.style.background = "var(--surface)";
+  }
+
+  // Update placeholder
+  if (t) {
+    const phTitle = document.getElementById("canvas-ph-title");
+    phTitle.textContent = t.label.toUpperCase();
+    phTitle.style.color = b?.colors[0] || "var(--accent)";
+    phTitle.style.fontSize = t.w < 300 ? "28px" : "40px";
+  }
+
+  // Re-render layers on canvas
+  renderCanvasElements();
+  updateStatusBar();
+}
+
+function renderCanvasElements() {
+  // remove old
+  document.querySelectorAll(".canvas-el").forEach(e => e.remove());
+  const frame = document.getElementById("canvas-frame");
+  state.canvasElements.forEach((el, i) => {
+    const div = document.createElement("div");
+    div.className = `canvas-el ${state.activeLayer===el.id?'active':''}`;
+    div.style.cssText = `top:${20+i*8}%;left:${8+(i%3)*4}%;background:${el.color}22;border:1px solid ${el.color}55;color:${el.color}`;
+    div.textContent = el.label;
+    div.onclick = () => { state.activeLayer = el.id; renderCanvasElements(); renderLayers(); };
+    frame.appendChild(div);
+  });
+}
+
+function updateStatusBar() {
+  document.getElementById("bar-layers").textContent = state.canvasElements.length;
+  document.getElementById("bar-brand").textContent = state.selectedBrand?.name || "None";
+  document.getElementById("bar-files").textContent = state.files.length;
+}
+
+// ── AI GENERATE ───────────────────────────────────────────────────────────────
+function aiGenerate() {
+  const msg = `Generate a complete detailed design concept for a ${state.selectedTemplate?.label||"poster"}${state.selectedBrand?` for ${state.selectedBrand.name}`:""}. Include layout, visual hierarchy, colours, typography, key elements, and specific measurements.`;
+  switchPanel("ai");
+  sendToAI(msg);
+}
+
+// ── LAYERS ────────────────────────────────────────────────────────────────────
+function addLayer() {
+  const id = Date.now();
+  const colors = ["#7c6aff","#ff4f82","#f5c030","#1edd87","#00ccaa"];
+  state.canvasElements.push({ id, type:"layer", label:"New Layer", color:colors[state.canvasElements.length%colors.length] });
+  state.activeLayer = id;
+  renderLayers();
+  renderCanvasElements();
+  updateStatusBar();
+}
+
+function removeLayer(id) {
+  state.canvasElements = state.canvasElements.filter(e => e.id !== id);
+  if (state.activeLayer === id) state.activeLayer = null;
+  renderLayers();
+  renderCanvasElements();
+  updateStatusBar();
+}
+
+function renderLayers() {
+  const el = document.getElementById("layer-list");
+  if (state.canvasElements.length === 0) {
+    el.innerHTML = `<div class="empty-state">No layers yet.<br/>Start a design or ask the AI.</div>`;
+    return;
+  }
+  el.innerHTML = state.canvasElements.map(e => `
+    <div class="layer-item ${state.activeLayer===e.id?'active':''}" onclick="setActiveLayer(${e.id})">
+      <div class="layer-dot" style="background:${e.color}"></div>
+      <span class="layer-name">${e.label}</span>
+      <span class="layer-type">${e.type}</span>
+      <button class="layer-del" onclick="event.stopPropagation();removeLayer(${e.id})">✕</button>
+    </div>
+  `).join("");
+}
+
+function setActiveLayer(id) {
+  state.activeLayer = id;
+  renderLayers();
+  renderCanvasElements();
+}
+
+// ── BRANDS ────────────────────────────────────────────────────────────────────
+function renderBrands() {
+  document.getElementById("brand-list").innerHTML = state.brands.map(b => `
+    <div class="brand-card ${state.selectedBrand?.id===b.id?'active':''}" onclick="selectBrand(${b.id})">
+      <div class="brand-card-top">
+        <span class="brand-card-name">${b.name}</span>
+        ${state.selectedBrand?.id===b.id?'<span class="active-badge">ACTIVE</span>':''}
+      </div>
+      <div style="display:flex;gap:3px;margin-bottom:4px">
+        ${b.colors.map(c=>`<div style="width:13px;height:13px;border-radius:3px;background:${c};border:1px solid rgba(255,255,255,.1)"></div>`).join("")}
+      </div>
+      <div class="brand-card-style">${b.style}</div>
+      <div class="brand-card-notes">${b.notes}</div>
+    </div>
+  `).join("");
+}
+
+function selectBrand(id) {
+  const b = state.brands.find(x => x.id === id);
+  state.selectedBrand = state.selectedBrand?.id === id ? null : b;
+  renderBrands();
+  updateBrandPill();
+  updateBrandPalette();
+  updateCanvas();
+}
+
+function updateBrandPill() {
+  const b = state.selectedBrand;
+  const pill = document.getElementById("brand-pill");
+  if (!b) { pill.style.display = "none"; return; }
+  pill.style.display = "flex";
+  document.getElementById("brand-pill-name").textContent = b.name;
+  document.getElementById("brand-pill-dots").innerHTML = b.colors.slice(0,3).map(c =>
+    `<div style="width:9px;height:9px;border-radius:50%;background:${c}"></div>`).join("");
+}
+
+function updateBrandPalette() {
+  const b = state.selectedBrand;
+  const section = document.getElementById("brand-palette-section");
+  if (!b) { section.style.display = "none"; return; }
+  section.style.display = "block";
+  document.getElementById("brand-palette-colors").innerHTML = b.colors.map(c => `
+    <div class="color-row">
+      <div class="color-dot" style="background:${c};box-shadow:0 0 5px ${c}66"></div>
+      <span class="color-hex">${c}</span>
+    </div>
+  `).join("");
+}
+
+// ── BRAND URL ANALYSIS ────────────────────────────────────────────────────────
+async function analyzeBrand() {
+  const url = document.getElementById("url-input").value.trim();
+  if (!url || state.analysing) return;
+  state.analysing = true;
+  document.getElementById("url-go-btn").textContent = "…";
+  document.getElementById("brand-result-area").innerHTML = "";
+  addAIMessage(`Analysing brand from: ${url}`);
+  switchPanel("ai");
+
+  try {
+    const data = await callAI([{ role:"user", content:`Analyse the brand from this URL: ${url}` }],
+      `You are a brand identity analyst. Return ONLY valid JSON (no markdown, no backticks):
+{"name":"Brand Name","colors":["#hex1","#hex2","#hex3"],"style":"5-word style","fonts":["Font1","Font2"],"tone":"brand voice","notes":"2-sentence summary","designIdeas":["idea1","idea2","idea3"]}`);
+
+    let parsed;
+    try { parsed = JSON.parse(data.replace(/```json|```/g,"").trim()); }
+    catch { parsed = { name:url, colors:["#7c6aff","#ff4f82"], style:"modern digital", fonts:["DM Sans"], tone:"professional", notes:"Brand from URL.", designIdeas:["Bold poster","Clean social post","Minimal banner"] }; }
+
+    showBrandResult(parsed);
+    addAIMessage(`✦ Brand extracted: ${parsed.name}\nStyle: ${parsed.style}\nColors: ${parsed.colors?.join(", ")}\n\nSaved to library. Want me to generate a design using this identity?`);
+  } catch(e) {
+    addAIMessage("Couldn't reach that URL. Try pasting the brand name and I'll research it.");
+  }
+  state.analysing = false;
+  document.getElementById("url-go-btn").textContent = "→";
+  document.getElementById("url-input").value = "";
+}
+
+function showBrandResult(b) {
+  document.getElementById("brand-result-area").innerHTML = `
+    <div class="brand-result">
+      <div class="brand-result-name">${b.name}</div>
+      <div class="brand-swatches">${(b.colors||[]).map(c=>`<div class="swatch" style="background:${c}"></div>`).join("")}</div>
+      <div class="brand-meta">${b.style}</div>
+      <div class="brand-meta">${b.notes}</div>
+      <button class="save-brand-btn" onclick="saveBrand(${JSON.stringify(b).replace(/"/g,"&quot;")})">Save to Library ✓</button>
+    </div>`;
+}
+
+function saveBrand(b) {
+  const brand = { ...b, id:Date.now() };
+  state.brands.push(brand);
+  state.selectedBrand = brand;
+  document.getElementById("brand-result-area").innerHTML = "";
+  renderBrands();
+  updateBrandPill();
+  updateBrandPalette();
+  updateCanvas();
+  switchPanel("brand");
+}
+
+// ── INSPIRATION SEARCH ────────────────────────────────────────────────────────
+function renderSearchTags() {
+  document.getElementById("search-tags").innerHTML = INSPO.map(s =>
+    `<button class="stag" onclick="document.getElementById('search-input').value='${s}'">${s.slice(0,22)}…</button>`
+  ).join("");
+}
+
+async function searchInspiration() {
+  const q = document.getElementById("search-input").value.trim();
+  if (!q || state.searching) return;
+  state.searching = true;
+  document.getElementById("result-list").innerHTML = `<div class="empty-state shimmer">Finding inspiration…</div>`;
+
+  try {
+    const data = await callAI([{ role:"user", content:`Design inspiration for: ${q}` }],
+      `You are a creative director. Return ONLY a JSON array (no markdown) of 5 objects:
+[{"title":"...","description":"...","palette":["#hex","#hex","#hex"],"mood":"...","suggestion":"..."}]`);
+
+    let results;
+    try { results = JSON.parse(data.replace(/```json|```/g,"").trim()); }
+    catch { results = [{ title:q, description:"Dynamic creative direction.", palette:["#7c6aff","#ff4f82","#f5c030"], mood:"Bold", suggestion:"Explore strong contrasts and bold type." }]; }
+
+    document.getElementById("result-list").innerHTML = results.map(r => `
+      <div class="result-card" onclick="useInspiration('${r.title.replace(/'/g,"\\'")}','${r.suggestion.replace(/'/g,"\\'")}')">
+        <div class="result-palette">${(r.palette||[]).map(c=>`<div class="result-swatch" style="background:${c}"></div>`).join("")}</div>
+        <div class="result-title">${r.title}</div>
+        <div class="result-desc">${r.description}</div>
+        <div class="result-tip">${r.suggestion}</div>
+      </div>
+    `).join("");
+  } catch {
+    document.getElementById("result-list").innerHTML = `<div class="empty-state">Search failed. Try again.</div>`;
+  }
+  state.searching = false;
+}
+
+function useInspiration(title, suggestion) {
+  switchPanel("ai");
+  sendToAI(`Create a design inspired by: ${title}. ${suggestion}`);
+}
+
+// ── FILES ─────────────────────────────────────────────────────────────────────
+function handleFiles(fileList) {
+  const newFiles = Array.from(fileList).map(f => ({ name:f.name, size:f.size, type:f.type, id:Date.now()+Math.random() }));
+  state.files.push(...newFiles);
+  renderFiles();
+  updateStatusBar();
+  sendToAI(`I uploaded: ${newFiles.map(f=>f.name).join(", ")} — analyse these assets and suggest how to incorporate them into a design.`);
+  switchPanel("ai");
+}
+
+function renderFiles() {
+  const el = document.getElementById("file-list");
+  if (state.files.length === 0) { el.innerHTML = `<div class="empty-state">No files yet.</div>`; return; }
+  el.innerHTML = state.files.map(f => `
+    <div class="file-item">
+      <div class="file-icon">${f.type.includes("image")?"🖼️":f.type.includes("pdf")?"📄":"📁"}</div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-size">${(f.size/1024).toFixed(1)} KB</div>
+      </div>
+      <button class="use-btn" onclick="useFile('${f.name.replace(/'/g,"\\'")}')">Use</button>
+    </div>
+  `).join("");
+}
+
+function useFile(name) {
+  switchPanel("ai");
+  sendToAI(`Use ${name} as a reference in my design. What are the best ways to incorporate it?`);
+}
+
+// ── QUICK COLORS ─────────────────────────────────────────────────────────────
+function renderQuickColors() {
+  document.getElementById("quick-colors").innerHTML = QCOLORS.map(c =>
+    `<div class="qc" style="background:${c}" title="${c}" onclick="quickAction('Use ${c} as the primary accent colour. How does it work with my current design?')"></div>`
+  ).join("");
+}
+
+// ── CHIPS ─────────────────────────────────────────────────────────────────────
+function renderChips() {
+  document.getElementById("chips").innerHTML = INSPO.slice(0,3).map(s =>
+    `<button class="chip" onclick="sendToAI('${s}')">${s.slice(0,26)}…</button>`
+  ).join("");
+}
+
+// ── AI CHAT ───────────────────────────────────────────────────────────────────
+function addAIMessage(text) {
+  state.messages.push({ role:"assistant", text });
+  renderMessages();
+}
+
+function renderMessages() {
+  const el = document.getElementById("chat-msgs");
+  el.innerHTML = state.messages.map(m => `
+    <div class="msg ${m.role==="user"?"user":"ai"}">
+      <div class="bubble">${escHtml(m.text)}</div>
+    </div>
+  `).join("");
+  if (state.generating) {
+    el.innerHTML += `<div class="typing-indicator"><div class="spinner"></div><span style="font-size:10.5px;color:#505070">Designing…</span></div>`;
+  }
+  el.scrollTop = el.scrollHeight;
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+async function sendToAI(overrideMsg) {
+  const input = document.getElementById("chat-input");
+  const msg = overrideMsg || input.value.trim();
+  if (!msg || state.generating) return;
+  input.value = "";
+
+  state.messages.push({ role:"user", text:msg });
+  state.generating = true;
+  document.getElementById("send-btn").disabled = true;
+  renderMessages();
+
+  const brandCtx = state.selectedBrand
+    ? `\nActive brand: ${state.selectedBrand.name}. Colors: ${state.selectedBrand.colors.join(", ")}. Style: ${state.selectedBrand.style}. Notes: ${state.selectedBrand.notes}`
+    : "";
+
+  const systemPrompt = `You are an expert AI graphic designer and creative director inside a professional design studio app. You help create posters, social media graphics, mockups, brand identities, and print designs.
+
+When responding:
+- Be specific with hex colours, font names, layout instructions
+- Structure design briefs with: CONCEPT, COLOURS, TYPOGRAPHY, LAYOUT, ELEMENTS
+- Always reference the active brand context if available
+- Suggest next steps and variations
+- Keep responses focused and actionable${brandCtx}`;
+
+  try {
+    const apiMessages = [
+      ...state.messages.filter(m=>m.role==="user"||m.role==="assistant").slice(-8).map(m=>({ role:m.role, content:m.text }))
+    ];
+
+    const reply = await callAI(apiMessages, systemPrompt);
+    state.messages.push({ role:"assistant", text:reply });
+
+    // Auto-add layer if design-related
+    if (msg.toLowerCase().match(/poster|create|design|make|build|generate/)) {
+      const id = Date.now();
+      const colors = ["#7c6aff","#ff4f82","#f5c030","#1edd87","#00ccaa"];
+      state.canvasElements.push({
+        id, type:"ai-concept",
+        label:msg.slice(0,34)+"…",
+        color:state.selectedBrand?.colors?.[0]||colors[state.canvasElements.length%colors.length]
+      });
+      state.activeLayer = id;
+      renderLayers();
+      renderCanvasElements();
+      updateStatusBar();
+    }
+  } catch(e) {
+    state.messages.push({ role:"assistant", text:"Connection issue. Make sure your API key is set and try again." });
+  }
+
+  state.generating = false;
+  document.getElementById("send-btn").disabled = false;
+  renderMessages();
+}
+
+function quickAction(msg) {
+  switchPanel("ai");
+  sendToAI(msg);
+}
+
+// ── CORE API CALL ─────────────────────────────────────────────────────────────
+async function callAI(messages, system) {
+  const headers = {
+    "Content-Type":"application/json",
+    "anthropic-version":"2023-06-01",
+    "anthropic-dangerous-direct-browser-access":"true",
+  };
+  if (API_KEY) headers["x-api-key"] = API_KEY;
+
+  const res = await fetch(ANTHROPIC_URL, {
+    method:"POST",
+    headers,
+    body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, system, messages }),
+  });
+  const data = await res.json();
+  return data.content?.find(b=>b.type==="text")?.text || "";
+}
+</script>
+</body>
+</html>
